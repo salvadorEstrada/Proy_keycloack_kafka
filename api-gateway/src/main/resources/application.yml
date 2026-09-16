@@ -1,0 +1,85 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: msvc-gateway
+  main:
+    web-application-type: reactive
+
+  cloud:
+    gateway:
+      server:
+        web-flux:
+          routes:
+            - id: msvc-inventory
+              uri: lb://msvc-inventory
+              predicates:
+                - Path=/api/v1/inventories/**
+
+            - id: msvc-orders
+              uri: lb://msvc-orders
+              predicates:
+                - Path=/api/v1/orders/**
+
+            - id: msvc-product
+              uri: lb://msvc-product # Cámbialo a Mayúsculas para que haga match exacto con Eureka
+              predicates:
+                - Path=/api/v1/productos/**
+
+            - id: msvc-eureka
+              uri: http://localhost:8761
+              predicates:
+                - Path=/eureka/web
+              filters:
+                - SetPath=/
+
+            - id: msvc-eureka-static
+              uri: http://localhost:8761
+              predicates:
+                - Path=/eureka/**
+
+          default-filters:
+            - SaveSession
+            - TokenRelay
+
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8181/realms/microservices-realm
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            provider: keycloak
+            client_id: microservices-client
+            client_secret: 8RrLVUdPSeAatLbbGQK6kcYcCXQcitIV
+            authorization-grant-type: authorization_code
+            # Fijamos la URL real para evitar que WebFlux resuelva mal la variable {baseUrl}
+            redirect-uri: http://localhost:8080/login/oauth2/code/keycloak
+            scope:
+              - openid
+              - profile
+
+# CONFIGURACIÓN CLIENTE EUREKA
+eureka:
+  client:
+    jersey:
+      enabled: false
+    service-url:
+      defaultZone: http://eureka:password@localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.gateway: TRACE
+
+
+
+
+
+

@@ -1,0 +1,84 @@
+services:
+  db-inventory:
+    container_name: db-inventory
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: msvc-inventory
+      POSTGRES_USER: salva
+      POSTGRES_PASSWORD: Test@32
+    ports:
+      - 5431:5431
+    expose:
+      - 5431
+    command: -p 5431
+
+#MYSQL DATABASE FOR ORDERS
+  db-orders:
+    container_name: db-orders
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: msvc-orders
+      MYSQL_USER: salva
+      MYSQL_PASSWORD: Test@25
+      MYSQL_ROOT_PASSWORD: secure_root_password
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+
+
+#POSTGRES DATABASE FOR PRODUCTS
+  db-product:
+    container_name: db-product
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: msvc-product
+      POSTGRES_USER: salva
+      POSTGRES_PASSWORD: Test123
+    ports:
+      - "5433:5433"
+    expose:
+      - 5433
+    command: -p 5433
+
+  ### Posgres database for Keycloak
+  db-keycloak:
+    container_name: db-keycloak
+    image: postgres:15.2
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: db_keycloak
+      POSTGRES_USER: uncledave
+      POSTGRES_PASSWORD: Test123
+    ports:
+      - 5434:5434
+    expose:
+      - 5434
+    command: -p 5434
+
+  ### Keycloak
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:21.0.2
+    command: ["start-dev"]
+    ports:
+      - 8181:8181
+    expose:
+      - 8181
+    depends_on:
+      - db-keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: db-keycloak
+      DB_DATABASE: db_keycloak
+      DB_PORT: 5434
+      DB_USER: uncledave
+      DB_PASSWORD: Test123
+      KEYCLOAK_ADMIN: estrada
+      KEYCLOAK_ADMIN_PASSWORD: kge@76
+      KC_HTTP_PORT: 8181
+
+
+
+
+
