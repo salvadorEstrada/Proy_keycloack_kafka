@@ -38,7 +38,7 @@ public class ProductServiceImpl implements IProductService {
     public List<ProductResponse> getAllProducts() {
         var products = productRepository.findAll();
 
-        return products.stream().map(this:: mapToProductResponse).toList();
+        return products.stream().map(this::mapToProductResponse).toList();
     }
 
     private ProductResponse mapToProductResponse(Product product){
